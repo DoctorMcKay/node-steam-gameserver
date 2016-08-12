@@ -19,7 +19,6 @@ server browser.
 # Contents
 - [Enums](#enums-)
 - [Static Properties](#static-properties-)
-- [Static Methods](#static-methods-)
 - [Options](#options-)
 - [Properties](#properties-)
 - [Methods](#methods-)
