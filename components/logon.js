@@ -70,7 +70,17 @@ SteamGameServer.prototype.logOn = function(details) {
 		};
 	}
 
+	var machineID;
+
 	var anonLogin = !this._logOnDetails.game_server_token;
+	if (!anonLogin) {
+		this._logOnDetails.game_server_app_id = this.appID;
+		this._logOnDetails.supports_rate_limit_response = true;
+
+		if (!this._logOnDetails.machine_id && this.options.machineIdType == SteamGameServer.EMachineIDType.PersistentRandom) {
+			filenames.push('machineid.bin');
+		}
+	}
 
 	// Read the required files
 	var filenames = [];
@@ -104,7 +114,15 @@ SteamGameServer.prototype.logOn = function(details) {
 					this._logOnDetails.cell_id = cellID;
 				}
 			}
+
+			if (file.filename == 'machineid.bin' && file.contents) {
+				machineID = file.contents;
+			}
 		});
+
+		if (!anonLogin && !this._logOnDetails.machine_id) {
+			this._logOnDetails.machine_id = this._getMachineID(machineID);
+		}
 
 		// Do the login
 		var sid = new SteamID();
@@ -126,11 +144,12 @@ SteamGameServer.prototype.logOn = function(details) {
 };
 
 function onConnected() {
+	console.log(this._logOnDetails);
 	if (this.client.constructor.name === 'CMClient') {
 		// We need to use this since CMClient defines the protocol version itself
 		this.client.logOn(this._logOnDetails);
 	} else {
-		this._send(SteamGameServer.EMsg.ClientLogon, this._logOnDetails);
+		this._send(this._logOnDetails.game_server_token ? SteamGameServer.EMsg.ClientLogonGameServer : SteamGameServer.EMsg.ClientLogon, this._logOnDetails);
 	}
 }
 
@@ -152,6 +171,40 @@ SteamGameServer.prototype.logOff = SteamGameServer.prototype.disconnect = functi
 		});
 	} else {
 		this.client.disconnect();
+	}
+};
+
+SteamGameServer.prototype._getMachineID = function(localFile) {
+	if (!this._logOnDetails.game_server_token || this.options.machineIdType == SteamGameServer.EMachineIDType.None) {
+		// No machine IDs for anonymous logons
+		return null;
+	}
+
+	// The user wants to use a random machine ID that's saved to dataDirectory
+	if (this.options.machineIdType == SteamGameServer.EMachineIDType.PersistentRandom) {
+		if (localFile) {
+			return localFile;
+		}
+
+		var file = getRandomID();
+		this.storage.writeFile('machineid.bin', file);
+		return file;
+	}
+
+	// The user wants to use a machine ID that's generated off the account name
+	if (this.options.machineIdType == SteamGameServer.EMachineIDType.AccountTokenGenerated) {
+		return createMachineID(
+			this.options.machineIdFormat[0].replace(/\{token\}/g, this._logOnDetails.game_server_token),
+			this.options.machineIdFormat[1].replace(/\{token\}/g, this._logOnDetails.game_server_token),
+			this.options.machineIdFormat[2].replace(/\{token\}/g, this._logOnDetails.game_server_token)
+		);
+	}
+
+	// Default to random
+	return getRandomID();
+
+	function getRandomID() {
+		return createMachineID(Math.random().toString(), Math.random().toString(), Math.random().toString());
 	}
 };
 
@@ -253,3 +306,37 @@ SteamGameServer.prototype._handlers[SteamGameServer.EMsg.GSStatusReply] = functi
 	this.emit('vac', body.is_secure);
 	this.secure = body.is_secure;
 };
+
+// Private functions
+
+function createMachineID(val_bb3, val_ff2, val_3b3) {
+	// Machine IDs are binary KV objects with root key MessageObject and three hashes named BB3, FF2, and 3B3.
+	// I don't feel like writing a proper BinaryKV serializer, so this will work fine.
+
+	var buffer = new ByteBuffer(155, ByteBuffer.LITTLE_ENDIAN);
+	buffer.writeByte(0); // 1 byte, total 1
+	buffer.writeCString("MessageObject"); // 14 bytes, total 15
+
+	buffer.writeByte(1); // 1 byte, total 16
+	buffer.writeCString("BB3"); // 4 bytes, total 20
+	buffer.writeCString(sha1(val_bb3)); // 41 bytes, total 61
+
+	buffer.writeByte(1); // 1 byte, total 62
+	buffer.writeCString("FF2"); // 4 bytes, total 66
+	buffer.writeCString(sha1(val_ff2)); // 41 bytes, total 107
+
+	buffer.writeByte(1); // 1 byte, total 108
+	buffer.writeCString("3B3"); // 4 bytes, total 112
+	buffer.writeCString(sha1(val_3b3)); // 41 bytes, total 153
+
+	buffer.writeByte(8); // 1 byte, total 154
+	buffer.writeByte(8); // 1 byte, total 155
+
+	return buffer.flip().toBuffer();
+
+	function sha1(input) {
+		var hash = Crypto.createHash('sha1');
+		hash.update(input, 'utf8');
+		return hash.digest('hex');
+	}
+}

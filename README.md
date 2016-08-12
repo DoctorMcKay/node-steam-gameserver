@@ -102,6 +102,21 @@ A boolean which controls whether or not `SteamGameServer` will automatically rec
 
 Defaults to `true`.
 
+### machineIdType
+
+What kind of machine ID will SteamGameServer send to Steam when logging on? Should be a value from
+[`EMachineIDType`](https://github.com/DoctorMcKay/node-steam-gameserver/blob/master/resources/EMachineIDType.js).
+
+Only meaningful when logging into a persistent account with a token. Defaults to `AccountTokenGenerated`.
+
+### machineIdFormat
+
+If you're using `machineIdType` `AccountTokenGenerated`, this is the format it uses. This is an array of three strings,
+each of which will be hashed with SHA1 before being sent to Steam. `{token}` will be replaced with the current account
+login token.
+
+Defaults to `["SteamGameServer Hash BB3 {account_name}", "SteamGameServer Hash FF2 {account_name}", "SteamGameServer Hash 3B3 {account_name}"]`.
+
 # Properties [^](#contents)
 
 ### client

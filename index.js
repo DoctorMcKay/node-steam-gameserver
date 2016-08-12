@@ -7,6 +7,7 @@ require('util').inherits(SteamGameServer, require('events').EventEmitter);
 module.exports = SteamGameServer;
 
 SteamGameServer.Steam = Steam;
+SteamGameServer.EMachineIDType = require('./resources/EMachineIDType.js');
 
 require('./resources/enums.js');
 
@@ -35,6 +36,8 @@ function SteamGameServer(client, options) {
 
 	var defaultOptions = {
 		"autoRelogin": true,
+		"machineIdType": SteamGameServer.EMachineIDType.AccountTokenGenerated,
+		"machineIdFormat": ["SteamGameServer Hash BB3 {token}", "SteamGameServer Hash FF2 {token}", "SteamGameServer Hash 3B3 {token}"],
 		"debug": false
 	};
 
