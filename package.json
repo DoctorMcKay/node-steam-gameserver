@@ -1,0 +1,38 @@
+{
+	"name": "steam-gameserver",
+	"version": "1.0.0",
+	"description": "node-steam client handler for Gameserver and AnonGameserver account types",
+	"keywords": ["steam", "steam client", "steam server", "steam gameserver", "steam game server"],
+	"homepage": "https://github.com/DoctorMcKay/node-steam-gameserver",
+	"bugs": {
+		"url": "https://github.com/DoctorMcKay/node-steam-gameserver/issues"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Alexander Corn",
+		"email": "mckay@doctormckay.com",
+		"url": "https://www.doctormckay.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DoctorMcKay/node-steam-gameserver.git"
+	},
+	"dependencies": {
+		"steamid": "^1.1.0",
+		"appdirectory": "^0.1.0",
+		"protobufjs": "^5.0.0",
+		"steam-client": "^2.0.0",
+		"bytebuffer": "^5.0.0",
+		"@doctormckay/steam-crypto": "^1.0.0",
+		"file-manager": "^1.0.0",
+		"vdf": "^0.0.2",
+		"binarykvparser": "^2.0.0"
+	},
+	"scripts": {
+		"prepublish": "node scripts/prepublish.js",
+		"generate-enums": "node scripts/generate-enums.js"
+	},
+	"engines": {
+		"node": ">=4.0.0"
+	}
+}
