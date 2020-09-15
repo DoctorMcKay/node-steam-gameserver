@@ -154,7 +154,10 @@ function onConnected() {
 }
 
 SteamGameServer.prototype.logOff = SteamGameServer.prototype.disconnect = function(suppressLogoff) {
-	this.client.removeListener('connected', this._onConnected);
+	if (this._onConnected) {
+		this.client.removeListener('connected', this._onConnected);
+		this._onConnected = null;
+	}
 
 	if (this.client.connected && !suppressLogoff) {
 		this._loggingOff = true;
@@ -219,7 +222,7 @@ SteamGameServer.prototype._handlers[SteamGameServer.EMsg.ClientLogOnResponse] = 
 			this.publicIP = Helpers.ipIntToString(body.public_ip);
 			this.cellID = body.cell_id;
 
-			this.storage.saveFile('cellid-' + Helpers.getInternalMachineID() + '.txt', body.cell_id);
+			this.storage.saveFile('cellid-' + Helpers.getInternalMachineID() + '.txt', body.cell_id.toString());
 
 			// Send the GS info
 			this._send(SteamGameServer.EMsg.GSServerType, {
