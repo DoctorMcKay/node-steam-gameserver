@@ -32,6 +32,11 @@ function SteamGameServer(client, options) {
 	this.secure = null;
 	this.users = null;
 
+	// Auth stuff
+	this._activeAuthTickets = [];
+	this._authSeqMe = 0;
+	this._authSeqThem = 0;
+
 	this.options = options || {};
 
 	var defaultOptions = {
@@ -119,6 +124,7 @@ require('./components/gameservers.js');
 require('./components/friends.js');
 require('./components/apps.js');
 require('./components/pubfiles.js');
+require('./components/appauth.js');
 
 /**
  * Called when the request completes.
