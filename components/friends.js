@@ -85,7 +85,6 @@ SteamGameServer.prototype.getSteamLevels = function(steamids, callback) {
 // Handlers
 
 SteamGameServer.prototype._handlers[SteamGameServer.EMsg.ClientPersonaState] = function(body) {
-	console.log(body);
 	body.friends.forEach((user) => {
 		var sid = new SteamID(user.friendid.toString());
 		var sid64 = sid.getSteamID64();

@@ -144,7 +144,6 @@ SteamGameServer.prototype.logOn = function(details) {
 };
 
 function onConnected() {
-	console.log(this._logOnDetails);
 	if (this.client.constructor.name === 'CMClient') {
 		// We need to use this since CMClient defines the protocol version itself
 		this.client.logOn(this._logOnDetails);
