@@ -30,8 +30,8 @@
 		"binarykvparser": "^2.0.0",
 		"bytebuffer": "^5.0.1",
 		"file-manager": "^1.0.0",
-		"protobufjs": "^5.0.0",
-		"steam-appticket": "^1.0.1",
+		"protobufjs": "^8.0.1",
+		"steam-appticket": "^2.0.1",
 		"steam-client": "^2.2.2",
 		"steamid": "^1.1.3",
 		"vdf": "^0.0.2"
